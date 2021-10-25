@@ -1,3 +1,6 @@
 = vscodium
 
-Ansible Playbook to install vscodium on the targeted system.
+Ansible Playbook to install `vscodium` on the targeted system.
+Supports only Fedora/CentOS Stream/RHEL at present.
+
+Follows the instructions at https://vscodium.com and uses the binaries and repositories from that site. 
