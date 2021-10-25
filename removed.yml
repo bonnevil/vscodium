@@ -1,0 +1,41 @@
+- name: Ensure vscodium is uninstalled
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+
+    - name: vscodium GPG key file status
+      stat:
+        path: /etc/pki/rpm-gpg/RPM-GPG-KEY-vscodium
+      register: codiumkey
+
+    - name: Remove GPG key file
+      block:
+        - name: vscodium GPG key is not in RPM database
+          rpm_key:
+            state: absent
+            key: /etc/pki/rpm-gpg/RPM-GPG-KEY-vscodium
+
+        - name: vscodium GPG key is removed
+          file:
+            path: /etc/pki/rpm-gpg/RPM-GPG-KEY-vscodium
+            state: absent
+      when: codiumkey['stat']['isreg'] is defined
+
+    - name: DNF repository for Fedora/RHEL is removed
+      yum_repository:
+        name: gitlab.com_paulcarroty_vscodium_repo
+        description: vscodium.com repository for Fedora/RHEL
+        baseurl: https://paulcarroty.gitlab.io/vscodium-deb-rpm-repo/rpms/
+        gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-vscodium
+        enabled: true
+        gpgcheck: true
+        repo_gpgcheck: true
+        file: vscodium
+        state: absent
+
+    - name: codium package is not installed
+      package:
+        name: codium
+        state: absent
